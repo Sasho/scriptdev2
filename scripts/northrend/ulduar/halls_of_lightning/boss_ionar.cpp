@@ -237,7 +237,7 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
                     m_bIsSplitPhase = false;
                 }
                 // Lightning effect and restore Ionar
-                else if (m_uiSparkAtHomeCount == MAX_SPARKS)
+                else 
                 {
                     m_creature->SetVisibility(VISIBILITY_ON);
                     m_creature->CastSpell(m_creature, SPELL_SPARK_DESPAWN, false);
