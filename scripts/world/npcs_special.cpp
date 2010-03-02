@@ -1188,6 +1188,51 @@ bool GossipSelect_npc_lunaclaw_spirit(Player* pPlayer, Creature* pCreature, uint
 }
 
 /*######
+#
+## npc_mirror_image
+#######*/
+
+enum
+{
+   SPELL_FROSTBOLT         = 59638,
+   SPELL_FIREBALL          = 59637
+};
+
+struct MANGOS_DLL_DECL npc_mirror_imageAI : public ScriptedAI
+{
+    npc_mirror_imageAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        Reset();
+    }
+
+    uint32 m_uiFrostBoltTimer;
+
+    void Reset()
+    {
+       m_uiFrostBoltTimer = 1000;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiFrostBoltTimer < uiDiff)
+        {
+            if (DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROSTBOLT) == CAST_OK)
+                m_uiFrostBoltTimer = urand(3600, 4000);
+        }
+        else
+            m_uiFrostBoltTimer -= uiDiff;
+    }
+};
+
+CreatureAI* GetAI_npc_mirror_image(Creature* pCreature)
+{
+    return new npc_mirror_imageAI(pCreature);
+}
+
+/*######
 ## npc_mount_vendor
 ######*/
 
@@ -1804,5 +1849,10 @@ void AddSC_npcs_special()
     newscript->Name = "npc_locksmith";
     newscript->pGossipHello =  &GossipHello_npc_locksmith;
     newscript->pGossipSelect = &GossipSelect_npc_locksmith;
+    newscript->RegisterSelf();
+ 
+    newscript = new Script;
+    newscript->Name = "npc_mirror_image";
+    newscript->GetAI = &GetAI_npc_mirror_image;
     newscript->RegisterSelf();
 }
