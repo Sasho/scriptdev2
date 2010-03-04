@@ -34,12 +34,12 @@ struct _Messages
 
 static _Messages _GossipMessage[]=
 {
-{"Вы готовы пройти Испытание Крестоносца?",GOSSIP_ACTION_INFO_DEF+1,false,TYPE_BEASTS}, //
-{"Вы готовы к следующему этапу?",GOSSIP_ACTION_INFO_DEF+2,false,TYPE_JARAXXUS},  //
-{"Вы готовы драться с крестоносцами альянса?",GOSSIP_ACTION_INFO_DEF+3,false,TYPE_CRUSADERS}, //
-{"Вы готовы драться с крестоносцами орды?",GOSSIP_ACTION_INFO_DEF+4,false,TYPE_CRUSADERS}, //
-{"Вы готовы к следующему этапу?",GOSSIP_ACTION_INFO_DEF+5,false,TYPE_FROJA}, //
-{"Не надо сюда тыкать. На сегодня арена закрыта.",GOSSIP_ACTION_INFO_DEF+7,true,TYPE_ANUBARAK}, //
+{"Are you ready to pass test Crusader?",GOSSIP_ACTION_INFO_DEF+1,false,TYPE_BEASTS}, //
+{"Are you ready for the next stage?",GOSSIP_ACTION_INFO_DEF+2,false,TYPE_JARAXXUS},  //
+{"Are you ready to fight with the crusaders alliance?",GOSSIP_ACTION_INFO_DEF+3,false,TYPE_CRUSADERS}, //
+{"Are you ready to fight the hordes of crusaders?",GOSSIP_ACTION_INFO_DEF+4,false,TYPE_CRUSADERS}, //
+{"Are you ready for the next stage?",GOSSIP_ACTION_INFO_DEF+5,false,TYPE_FROJA}, //
+{"Do not poke here. Today arena is closed.Have fun with EbonBG!",GOSSIP_ACTION_INFO_DEF+7,true,TYPE_ANUBARAK}, //
 };
 enum
 {
