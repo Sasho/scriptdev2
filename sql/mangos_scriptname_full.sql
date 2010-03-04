@@ -18,6 +18,8 @@ INSERT INTO areatrigger_scripts VALUES
 (5285,'at_aldurthar_gate'),
 (5286,'at_aldurthar_gate'),
 (5287,'at_aldurthar_gate');
+DELETE FROM areatrigger_scripts WHERE entry=4112;
+INSERT INTO areatrigger_scripts VALUES (4112,'at_naxxramas');
 
 /* BATTLEGROUNDS */
 UPDATE creature_template SET ScriptName='npc_spirit_guide' WHERE entry IN (13116, 13117);
@@ -636,9 +638,8 @@ UPDATE creature_template SET ScriptName='boss_lord_crispin_ference' WHERE entry=
 UPDATE creature_template SET ScriptName='boss_bigbadwolf' WHERE entry=17521;
 UPDATE creature_template SET ScriptName='mob_shadow_of_aran' WHERE entry=18254;
 UPDATE creature_template SET ScriptName='mob_aran_elemental' WHERE entry=17167;
-UPDATE creature_template SET ScriptName='mob_kilrek' WHERE entry=17229;
 UPDATE creature_template SET ScriptName='mob_demon_chain' WHERE entry=17248;
-UPDATE creature_template SET ScriptName='mob_karazhan_imp' WHERE entry=17267;
+UPDATE creature_template SET ScriptName='npc_fiendish_portal' WHERE entry=17265;
 UPDATE creature_template SET ScriptName='mob_cyclone' WHERE entry=18412;
 UPDATE creature_template SET ScriptName='netherspite_infernal' WHERE entry=17646;
 UPDATE creature_template SET ScriptName='npc_berthold' WHERE entry=16153;
@@ -734,7 +735,7 @@ UPDATE creature_template SET ScriptName='boss_gluth' WHERE entry=15932;
 -- UPDATE creature_template SET ScriptName='boss_stalagg' WHERE entry=15929;
 -- UPDATE creature_template SET ScriptName='boss_feugen' WHERE entry=15930;
 UPDATE creature_template SET ScriptName='boss_sapphiron' WHERE entry=15989;
--- UPDATE creature_template SET ScriptName='boss_kelthuzad' WHERE entry=15990;
+UPDATE creature_template SET ScriptName='boss_kelthuzad' WHERE entry=15990;
 
 /* NETHERSTORM */
 DELETE FROM areatrigger_scripts WHERE entry=4497;
