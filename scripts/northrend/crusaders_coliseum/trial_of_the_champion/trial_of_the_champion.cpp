@@ -43,10 +43,10 @@ struct _Messages
 
 static _Messages _GossipMessage[]=
 {
-{"Вы готовы драться с чемпионами противоположной фракции?",GOSSIP_ACTION_INFO_DEF+1,false,TYPE_GRAND_CHAMPIONS}, //
-{"Вы готовы драться с чемпионом Серебряного Рассвета?",GOSSIP_ACTION_INFO_DEF+2,false,TYPE_ARGENT_CHALLENGE},  //
-{"Вы готовы драться с Черным рыцарем?",GOSSIP_ACTION_INFO_DEF+3,false,TYPE_BLACK_KNIGHT}, //
-{"Не надо сюда тыкать. На сегодня арена закрыта.",GOSSIP_ACTION_INFO_DEF+4,true,TYPE_BLACK_KNIGHT}, //
+{"Are you ready to fight the champions of the opposing faction?",GOSSIP_ACTION_INFO_DEF+1,false,TYPE_GRAND_CHAMPIONS}, //
+{"Are you ready to fight with the champion of the Silver Dawn?",GOSSIP_ACTION_INFO_DEF+2,false,TYPE_ARGENT_CHALLENGE},  //
+{"Are you ready to fight the Black Knight?",GOSSIP_ACTION_INFO_DEF+3,false,TYPE_BLACK_KNIGHT}, //
+{"Do not poke here. Today arena is closed.",GOSSIP_ACTION_INFO_DEF+4,true,TYPE_BLACK_KNIGHT}, //
 };
 
 struct MANGOS_DLL_DECL npc_toc5_announcerAI : public ScriptedAI
