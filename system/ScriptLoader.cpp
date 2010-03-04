@@ -10,6 +10,8 @@ extern void AddSC_battleground();
 //custom
 extern void AddSC_npc_arena_honor();
 extern void AddSC_teleguy();
+extern void AddSC_boss_malygos();
+extern void AddSC_instance_eye_of_eternity();
 
 //examples
 extern void AddSC_example_creature();
@@ -479,6 +481,8 @@ void AddScripts()
     //custom
     AddSC_npc_arena_honor();
     AddSC_teleguy();
+    AddSC_boss_malygos();
+    AddSC_instance_eye_of_eternity();
 
     //examples
     AddSC_example_creature();
