@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Trial Of the crusader
-SD%Complete: 30%
+SD%Complete: 40%
 SDComment: event script by /dev/rsa
 SDCategory: trial_of_the_crusader
 EndScriptData */
@@ -43,7 +43,7 @@ static _Messages _GossipMessage[]=
 };
 enum
 {
-         NUM_MESSAGES = 6,
+         NUM_MESSAGES = 7,
 };
 
 
@@ -65,6 +65,7 @@ struct MANGOS_DLL_DECL npc_toc_announcerAI : public ScriptedAI
     pInstance->SetData(TYPE_STAGE,0);
     flag25 = true;
     DelayTimer = 0;
+    m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void AttackStart(Unit *who)
@@ -302,6 +303,26 @@ switch(uiAction) {
     };
 
     case GOSSIP_ACTION_INFO_DEF+6: {
+       if (GameObject* pGoFloor = pInstance->instance->GetGameObject(pInstance->GetData64(GO_ARGENT_COLISEUM_FLOOR)))
+          {
+           pGoFloor->SetUInt32Value(GAMEOBJECT_DISPLAYID,9060);
+           pGoFloor->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK_10 | GO_FLAG_NODESPAWN);
+           pGoFloor->SetUInt32Value(GAMEOBJECT_BYTES_1,8449);
+           }
+           pCreature->CastSpell(pCreature,69016,false);
+
+           pInstance->SetData(TYPE_ANUBARAK,IN_PROGRESS);
+           if (Creature* pTemp = (Creature*)Unit::GetUnit((*pCreature),pInstance->GetData64(NPC_ANUBARAK)))
+                        pTemp->Respawn();
+                    else {
+                          pCreature->SummonCreature(NPC_ANUBARAK, SpawnLoc[19].x, SpawnLoc[19].y, SpawnLoc[19].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                          if (Creature* pTemp = (Creature*)Unit::GetUnit((*pCreature),pInstance->GetData64(NPC_ANUBARAK))) {
+                                pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[20].x, SpawnLoc[20].y, SpawnLoc[20].z);
+                                pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
+                                pTemp->SetInCombatWithZone();
+                                }
+                          }
+               pInstance->SetData(TYPE_STAGE,9);
     break;
     };
 
@@ -487,10 +508,9 @@ struct MANGOS_DLL_DECL boss_lich_king_tocAI : public ScriptedAI
     }
 };
 
-CreatureAI* GetAI_boss_lich_king_toc(Creature *_Creature)
+CreatureAI* GetAI_boss_lich_king_toc(Creature* pCreature)
 {
-    boss_lich_king_tocAI* newAI = new boss_lich_king_tocAI(_Creature); 
-    return newAI;
+    return new boss_lich_king_tocAI(pCreature);
 }
 
 struct MANGOS_DLL_DECL npc_fizzlebang_tocAI : public ScriptedAI
@@ -499,6 +519,7 @@ struct MANGOS_DLL_DECL npc_fizzlebang_tocAI : public ScriptedAI
     {
         pInstance = (ScriptedInstance*)m_creature->GetInstanceData();
         Reset();
+        m_creature->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
     }
 
     InstanceData* pInstance;
@@ -527,7 +548,7 @@ struct MANGOS_DLL_DECL npc_fizzlebang_tocAI : public ScriptedAI
               {
                case 1110:
                     pInstance->SetData(TYPE_EVENT, 1120);
-                    m_creature->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);;
+                    m_creature->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
                     UpdateTimer = 7000;
                     break;
                case 1120:

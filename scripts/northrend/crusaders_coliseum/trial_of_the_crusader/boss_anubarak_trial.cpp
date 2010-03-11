@@ -16,13 +16,43 @@
 
 /* ScriptData
 SDName: boss_anubarak_trial
-SD%Complete: 0
-SDComment:
+SD%Complete: 1%
+SDComment: by /dev/rsa
 SDCategory:
 EndScriptData */
 
 #include "precompiled.h"
 #include "trial_of_the_crusader.h"
+
+enum Summons
+{
+    NPC_FROST_SPHERE     = 34606,
+    NPC_GUARDIAN         = 34607,
+    NPC_DATTER           = 34605,
+};
+
+enum BossSpells
+{
+    SPELL_COLD,
+    SPELL_LEECHING_SWARM,
+    SPELL_IMPALE,
+    SPELL_POUND,
+    SPELL_SUBMERGE,
+    SPELL_SUMMON_BEATLES,
+    SPELL_BERSERK,
+    BOSS_SPELL_COUNT
+};
+static SpellTable m_BossSpell[]=
+{
+// Name                  10     25     10H    25H
+{SPELL_COLD,             66013, 67700, 68509, 68510, 20000, 20000, 20000, 20000, 30000, 30000, 30000, 30000, 65535, CAST_ON_RANDOM, false, false},
+{SPELL_LEECHING_SWARM,   67630, 68646, 66118, 68647, 20000, 20000, 20000, 20000, 30000, 30000, 30000, 30000, 65535, CAST_ON_RANDOM, false, false},
+{SPELL_IMPALE,           65922, 65922, 65922, 65922, 20000, 20000, 20000, 20000, 30000, 30000, 30000, 30000, 65535, CAST_ON_RANDOM, false, false},
+{SPELL_POUND,            66013, 67700, 68509, 68510, 20000, 20000, 20000, 20000, 30000, 30000, 30000, 30000, 65535, CAST_ON_RANDOM, false, false},
+{SPELL_SUBMERGE,         53421, 53421, 53421, 53421, 20000, 20000, 20000, 20000, 30000, 30000, 30000, 30000, 65535, CAST_ON_RANDOM, false, false},
+{SPELL_SUMMON_BEATLES,   66339, 66339, 66339, 66339, 20000, 20000, 20000, 20000, 30000, 30000, 30000, 30000, 65535, CAST_ON_RANDOM, true, false},
+{SPELL_BERSERK,          26662, 26662, 26662, 26662, 600000, 600000, 600000, 600000, 600000, 600000, 600000, 600000, 65535, CAST_ON_SELF, false, false},
+};
 
 struct MANGOS_DLL_DECL boss_anubarak_trialAI : public ScriptedAI
 {
