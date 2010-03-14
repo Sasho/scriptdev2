@@ -8,7 +8,7 @@ enum
     TYPE_BEASTS                 = 1,
     TYPE_JARAXXUS               = 2,
     TYPE_CRUSADERS              = 3,
-    TYPE_FROJA                  = 4,
+    TYPE_VALKIRIES              = 4,
     TYPE_LICH_KING              = 5,
     TYPE_ANUBARAK               = 6,
     TYPE_COUNTER                = 7,
@@ -22,6 +22,9 @@ enum
     NPC_RINN                    = 34990,
     NPC_LICH_KING_0             = 16980,
     NPC_LICH_KING_1             = 35877,
+
+    NPC_THRALL                  = 34994,
+    NPC_PROUDMOORE              = 34992,
 
     NPC_ICEHOWL                 = 34797,
     NPC_GORMOK                  = 34796,
@@ -82,6 +85,11 @@ enum
     TYPE_EVENT_NPC              = 103,
     TYPE_NORTHREND_BEASTS       = 110,
 
+    DATA_DAMAGE_EYDIS           = 201,
+    DATA_DAMAGE_FJOLA           = 202,
+    DATA_CASTING_EYDIS          = 203,
+    DATA_CASTING_FJOLA          = 204,
+
     DESPAWN_TIME                = 300000
 
 };
@@ -97,8 +105,8 @@ static Locations SpawnLoc[]=
     {559.257996, 90.266197, 395.122986},  // 0 Barrent
     {563.672974, 139.571, 393.837006},    // 1 Center
     {563.833008, 187.244995, 394.5},      // 2 Backdoor
-    {583.336182, 181.737717, 395.135956}, // 3 
-    {545.914185, 180.859543, 395.137909}, // 4 
+    {583.336182, 181.737717, 395.145956}, // 3 
+    {545.914185, 180.859543, 395.147909}, // 4 
     {599.042358, 179.260727, 395.137146}, // 5
     {532.248901, 180.331955, 395.132658}, // 6
     {586.342285, 181.515823, 395.135956}, // 7 
@@ -116,6 +124,10 @@ static Locations SpawnLoc[]=
     {787.932556, 133.28978, 142.612152},  // 19 - Anub'arak start location
     {618.157898, 132.640869, 139.559769}, // 20 - Anub'arak move point location
     {508.104767, 138.247345, 395.128052}, // 21 - Fizzlebang start location
+    {586.060242, 117.514809, 394.314026}, // 22 - Dark essence 1
+    {541.602112, 161.879837, 394.587952}, // 23 - Dark essence 2
+    {541.021118, 117.262932, 395.314819}, // 24 - Light essence 1
+    {586.200562, 162.145523, 394.626129}, // 25 - Light essence 2
 };
 
 struct WayPoints
@@ -139,6 +151,8 @@ enum SpellTableParameters
   CAST_ON_VICTIM,
   CAST_ON_RANDOM,
   CAST_ON_BOTTOMAGGRO,
+  SUMMON_INSTANT,
+  SUMMON_TEMP,
 };
 
 struct SpellTable

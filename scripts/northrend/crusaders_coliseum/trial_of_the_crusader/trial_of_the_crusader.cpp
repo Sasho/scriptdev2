@@ -66,6 +66,10 @@ struct MANGOS_DLL_DECL npc_toc_announcerAI : public ScriptedAI
     flag25 = true;
     DelayTimer = 0;
     m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+    if(Creature *pAlly = GetClosestCreatureWithEntry(m_creature, NPC_THRALL, 200.0f))
+                      pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+    if(Creature *pAlly = GetClosestCreatureWithEntry(m_creature, NPC_PROUDMOORE, 200.0f))
+                      pAlly->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void AttackStart(Unit *who)
@@ -110,22 +114,8 @@ struct MANGOS_DLL_DECL npc_toc_announcerAI : public ScriptedAI
                  }
                  break;
                  };
+
         case 4: {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_JARAXXUS))) {
-                 if (!pTemp->isAlive()) {
-                        pInstance->SetData(TYPE_STAGE,0);
-                        pInstance->SetData(TYPE_JARAXXUS,DONE);
-                        pInstance->SetData(TYPE_EVENT,2000);
-                        }
-                 }
-                 else {
-                        m_creature->SummonCreature(NPC_JARAXXUS, SpawnLoc[2].x, SpawnLoc[2].y, SpawnLoc[2].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-                              if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_JARAXXUS))) {
-                                pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
-                                pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
-                                pTemp->SetInCombatWithZone();
-                                }
-                        }
                  break;
                  };
 
@@ -196,25 +186,18 @@ struct MANGOS_DLL_DECL npc_toc_announcerAI : public ScriptedAI
                 };
 
         case 7: {
-                Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_DARKBANE));
-                Creature* pTemp1 = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_LIGHTBANE));
-                if (pTemp && pTemp1){
-                 if (!pTemp->isAlive() && !pTemp1->isAlive()) {
+                 if (pInstance->GetData(TYPE_VALKIRIES) == DONE) {
                                  pInstance->SetData(TYPE_STAGE,0);
-                                 pInstance->SetData(TYPE_FROJA,DONE);
                                  pInstance->SetData(TYPE_EVENT,4020);
                                  }
-                 }
                 break;
                 };
         case 8: {
                  break;
                  };
         case 9: {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_ANUBARAK)))
-                        if (!pTemp->isAlive())  {
+             if (pInstance->GetData(TYPE_ANUBARAK) == DONE) {
                                  pInstance->SetData(TYPE_STAGE,0);
-                                 pInstance->SetData(TYPE_ANUBARAK,DONE);
                                  pInstance->SetData(TYPE_EVENT,6000);
                                  }
                  break;
@@ -296,8 +279,7 @@ switch(uiAction) {
     };
 
     case GOSSIP_ACTION_INFO_DEF+5: {
-    if (pInstance->GetData(TYPE_FROJA) == NOT_STARTED ||
-        pInstance->GetData(TYPE_FROJA) == FAIL) 
+    if (pInstance->GetData(TYPE_VALKIRIES) != DONE)
            pInstance->SetData(TYPE_EVENT,4000);
     break;
     };
@@ -312,17 +294,15 @@ switch(uiAction) {
            pCreature->CastSpell(pCreature,69016,false);
 
            pInstance->SetData(TYPE_ANUBARAK,IN_PROGRESS);
-           if (Creature* pTemp = (Creature*)Unit::GetUnit((*pCreature),pInstance->GetData64(NPC_ANUBARAK)))
-                        pTemp->Respawn();
-                    else {
-                          pCreature->SummonCreature(NPC_ANUBARAK, SpawnLoc[19].x, SpawnLoc[19].y, SpawnLoc[19].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-                          if (Creature* pTemp = (Creature*)Unit::GetUnit((*pCreature),pInstance->GetData64(NPC_ANUBARAK))) {
-                                pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[20].x, SpawnLoc[20].y, SpawnLoc[20].z);
-                                pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
-                                pTemp->SetInCombatWithZone();
-                                }
-                          }
+                pCreature->SummonCreature(NPC_ANUBARAK, SpawnLoc[19].x, SpawnLoc[19].y, SpawnLoc[19].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                if (Creature* pTemp = (Creature*)Unit::GetUnit((*pCreature),pInstance->GetData64(NPC_ANUBARAK))) {
+                        pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[20].x, SpawnLoc[20].y, SpawnLoc[20].z);
+                        pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
+                        pTemp->SetInCombatWithZone();
+                        }
                pInstance->SetData(TYPE_STAGE,9);
+               if (pCreature->GetVisibility() == VISIBILITY_ON)
+                   pCreature->SetVisibility(VISIBILITY_OFF);
     break;
     };
 
@@ -470,16 +450,12 @@ struct MANGOS_DLL_DECL boss_lich_king_tocAI : public ScriptedAI
                 if(pInstance) pInstance->SetData(TYPE_LICH_KING,DONE);
 
                pInstance->SetData(TYPE_ANUBARAK,IN_PROGRESS);
-               if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_ANUBARAK)))
-                        pTemp->Respawn();
-                    else {
-                          m_creature->SummonCreature(NPC_ANUBARAK, SpawnLoc[19].x, SpawnLoc[19].y, SpawnLoc[19].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-                          if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_ANUBARAK))) {
+                  m_creature->SummonCreature(NPC_ANUBARAK, SpawnLoc[19].x, SpawnLoc[19].y, SpawnLoc[19].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                  if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_ANUBARAK))) {
                                 pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[20].x, SpawnLoc[20].y, SpawnLoc[20].z);
                                 pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
                                 pTemp->SetInCombatWithZone();
                                 }
-                          }
                pInstance->SetData(TYPE_STAGE,9);
                Event=false;
                m_creature->ForcedDespawn();
@@ -593,6 +569,12 @@ struct MANGOS_DLL_DECL npc_fizzlebang_tocAI : public ScriptedAI
                case 1160:
                     DoScriptText(-1713515, m_creature);
                     pInstance->SetData(TYPE_EVENT, 1170);
+                    DoCast(m_creature, 58291);
+                    UpdateTimer = 1000;
+                    break;
+               case 1170:
+                    DoCastSpellIfCan(m_creature, 58291);
+                    pInstance->SetData(TYPE_EVENT, 1175);
                     UpdateTimer = 1000;
                     break;
               }
@@ -871,6 +853,7 @@ struct MANGOS_DLL_DECL npc_tirion_tocAI : public ScriptedAI
                                            if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_CRUSADER_0_1))) {
                                            pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
                                            pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
+                                           pTemp->SetRespawnDelay(DAY);
                                            pTemp->SetInCombatWithZone();
                                            }
                                          }
@@ -881,6 +864,7 @@ struct MANGOS_DLL_DECL npc_tirion_tocAI : public ScriptedAI
                                            if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_CRUSADER_0_2))) {
                                            pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
                                            pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
+                                           pTemp->SetRespawnDelay(DAY);
                                            pTemp->SetInCombatWithZone();
                                            }
                                          }
@@ -1003,6 +987,7 @@ struct MANGOS_DLL_DECL npc_tirion_tocAI : public ScriptedAI
                                            if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_CRUSADER_0_1))) {
                                            pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
                                            pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
+                                           pTemp->SetRespawnDelay(DAY);
                                            pTemp->SetInCombatWithZone();
                                            }
                                          }
@@ -1013,6 +998,7 @@ struct MANGOS_DLL_DECL npc_tirion_tocAI : public ScriptedAI
                                            if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_CRUSADER_0_2))) {
                                            pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
                                            pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
+                                           pTemp->SetRespawnDelay(DAY);
                                            pTemp->SetInCombatWithZone();
                                            }
                                          }
@@ -1041,27 +1027,19 @@ struct MANGOS_DLL_DECL npc_tirion_tocAI : public ScriptedAI
 
         case 4015:
                pInstance->SetData(TYPE_STAGE,7);
-               pInstance->SetData(TYPE_FROJA,IN_PROGRESS);
-               if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_LIGHTBANE)))
-                        { if(!pTemp->isAlive()) pTemp->Respawn(); }
-                    else {
-                          m_creature->SummonCreature(NPC_LIGHTBANE, SpawnLoc[3].x, SpawnLoc[3].y, SpawnLoc[3].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-                          if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_LIGHTBANE))) {
+               pInstance->SetData(TYPE_VALKIRIES,IN_PROGRESS);
+                      m_creature->SummonCreature(NPC_LIGHTBANE, SpawnLoc[3].x, SpawnLoc[3].y, SpawnLoc[3].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                      if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_LIGHTBANE))) {
                                 pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
                                 pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
                                 pTemp->SetInCombatWithZone();
                                 }
-                          }
-                if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_DARKBANE)))
-                        { if(!pTemp->isAlive()) pTemp->Respawn(); }
-                    else {
-                          m_creature->SummonCreature(NPC_DARKBANE, SpawnLoc[4].x, SpawnLoc[4].y, SpawnLoc[4].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
-                          if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_DARKBANE))) {
+                      m_creature->SummonCreature(NPC_DARKBANE, SpawnLoc[4].x, SpawnLoc[4].y, SpawnLoc[4].z, 5, TEMPSUMMON_CORPSE_TIMED_DESPAWN, DESPAWN_TIME);
+                      if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_DARKBANE))) {
                                 pTemp->GetMotionMaster()->MovePoint(0, SpawnLoc[1].x, SpawnLoc[1].y, SpawnLoc[1].z);
                                 pTemp->AddSplineFlag(SPLINEFLAG_WALKMODE);
                                 pTemp->SetInCombatWithZone();
                                 }
-                          }
                UpdateTimer = 10000;
                pInstance->SetData(TYPE_EVENT,4016);
                break;
@@ -1076,9 +1054,7 @@ struct MANGOS_DLL_DECL npc_tirion_tocAI : public ScriptedAI
                UpdateTimer = 2000;
                pInstance->SetData(TYPE_EVENT,5010);
                pInstance->SetData(TYPE_STAGE,8);
-               if (Creature* pTemp = (Creature*)Unit::GetUnit((*m_creature),pInstance->GetData64(NPC_LICH_KING_1)))
-                        { if(!pTemp->isAlive()) pTemp->Respawn(); }
-                        else m_creature->SummonCreature(NPC_LICH_KING_1, SpawnLoc[2].x, SpawnLoc[2].y, SpawnLoc[2].z, 5, TEMPSUMMON_MANUAL_DESPAWN, 0);
+                    m_creature->SummonCreature(NPC_LICH_KING_1, SpawnLoc[2].x, SpawnLoc[2].y, SpawnLoc[2].z, 5, TEMPSUMMON_MANUAL_DESPAWN, 0);
                break;
         case 5020:
                DoScriptText(-1713551, m_creature);
