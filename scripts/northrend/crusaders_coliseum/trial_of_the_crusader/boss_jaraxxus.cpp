@@ -13,10 +13,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+// Jaraxxus - Magic aura (from start?) not fully offlike implemented.
+// Legion flame visual effect not imlemented
 
 /* ScriptData
 SDName: trial_of_the_crusader
-SD%Complete: 10%
+SD%Complete: 80%
 SDComment: by /dev/rsa
 SDCategory: Crusader Coliseum
 EndScriptData */
@@ -68,7 +70,7 @@ static SpellTable m_BossSpell[]=
 {SPELL_INFERNAL_ERUPTION,66255, 66255, 66255, 66255, 30000, 30000, 30000, 30000, 45000, 45000, 45000, 45000, 65535, CAST_ON_RANDOM, false, false},
 {SPELL_FEL_FIREBALL,     66532, 66963, 66964, 66965, 20000, 20000, 20000, 20000, 30000, 30000, 30000, 30000, 65535, CAST_ON_RANDOM, false, false},
 {SPELL_FEL_LIGHTING,     66528, 66528, 67029, 67029, 15000, 15000, 15000, 15000, 25000, 25000, 25000, 25000, 65535, CAST_ON_RANDOM, false, false},
-{SPELL_INCINERATE_FLESH, 66237, 67049, 67050, 67051, 30000, 30000, 30000, 30000, 60000, 60000, 60000, 60000, 65535, CAST_ON_RANDOM, false, false},
+{SPELL_INCINERATE_FLESH, 66237, 67049, 67050, 67051, 40000, 40000, 40000, 40000, 90000, 90000, 40000, 90000, 65535, CAST_ON_RANDOM, false, false},
 {SPELL_BURNING_INFERNO,  66242, 67060, 67060, 67060, 20000, 20000, 20000, 20000, 30000, 30000, 30000, 30000, 65535, CAST_ON_RANDOM, false, false},
 {SPELL_NETHER_PORTAL,    66264, 66264, 68405, 68405, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 60000, 65535, CAST_ON_RANDOM, true, true},
 {SPELL_LEGION_FLAME_0,   66199, 68127, 68126, 68128, 30000, 30000, 30000, 30000, 45000, 45000, 45000, 45000, 65535, CAST_ON_RANDOM, false, false},
@@ -104,11 +106,14 @@ struct MANGOS_DLL_DECL boss_jaraxxusAI : public ScriptedAI
     uint8 m_volcanoCount;
     Unit* currentTarget;
 
+#include "sc_boss_spell_worker.cpp"
+
     void Reset() {
         if(!m_pInstance) return;
         Difficulty = m_pInstance->GetData(TYPE_DIFFICULTY);
         m_pInstance->SetData(TYPE_JARAXXUS, NOT_STARTED);
-        memset(&m_uiSpell_Timer, 0, sizeof(m_uiSpell_Timer));
+        for (uint8 i = 0; i < BOSS_SPELL_COUNT; ++i)
+              m_uiSpell_Timer[i] = urand(m_BossSpell[i].m_uiSpellTimerMin[Difficulty],m_BossSpell[i].m_uiSpellTimerMax[Difficulty]);
         SetEquipmentSlots(false, EQUIP_MAIN, EQUIP_OFFHAND, EQUIP_RANGED);
         m_portalsCount = 1;
         if (Difficulty == RAID_DIFFICULTY_10MAN_HEROIC || Difficulty == RAID_DIFFICULTY_25MAN_HEROIC) 
@@ -120,55 +125,6 @@ struct MANGOS_DLL_DECL boss_jaraxxusAI : public ScriptedAI
             m_volcanoCount = 4;
         }
         DoScriptText(-1713517,m_creature);
-    }
-
-    bool QuerySpellPeriod(uint32 m_uiSpellIdx, uint32 diff)
-    {
-    if(!m_pInstance) return false;
-    bool result;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        if (m_uiSpellIdx != pSpell->id) return false;
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] == 0 ) m_uiSpell_Timer[m_uiSpellIdx]=urand(0,pSpell->m_uiSpellTimerMax[Difficulty]);
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] < diff) {
-            m_uiSpell_Timer[m_uiSpellIdx]=urand(pSpell->m_uiSpellTimerMin[Difficulty],pSpell->m_uiSpellTimerMax[Difficulty]);
-            result = true;
-            } else {
-            m_uiSpell_Timer[m_uiSpellIdx] -= diff;
-            result = false;
-            };
-        return result;
-    }
-
-    CanCastResult CastBossSpell(uint32 m_uiSpellIdx)
-    {
-    if(!m_pInstance) return CAST_FAIL_OTHER;
-    Unit* pTarget;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        // Find spell index - temporary direct insert from spelltable
-        if (m_uiSpellIdx != pSpell->id) return CAST_FAIL_OTHER;
-
-        switch (pSpell->m_CastTarget) {
-            case CAST_ON_SELF:
-                   pTarget = m_creature;
-                   break;
-            case CAST_ON_SUMMONS:
-                   pTarget = m_creature->getVictim(); //CHANGE IT!!!
-                   break;
-            case CAST_ON_VICTIM:
-                   pTarget = m_creature->getVictim();
-                   break;
-            case CAST_ON_RANDOM:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                   break;
-            case CAST_ON_BOTTOMAGGRO:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                   break;
-
-            };
-            currentTarget = pTarget;
-            if (pTarget) return DoCastSpellIfCan(pTarget,pSpell->m_uiSpellEntry[Difficulty]);
     }
 
     uint64 CallGuard(uint64 npctype, TempSummonType type, uint32 _summontime )
@@ -415,6 +371,8 @@ struct MANGOS_DLL_DECL mob_fel_infernalAI : public ScriptedAI
     uint32 m_uiSpell_Timer[BOSS_SPELL_COUNT];
     Unit* currentTarget;
 
+#include "sc_boss_spell_worker.cpp"
+
     void Reset()
     {
         Difficulty = m_pInstance->GetData(TYPE_DIFFICULTY);
@@ -425,55 +383,6 @@ struct MANGOS_DLL_DECL mob_fel_infernalAI : public ScriptedAI
     void KilledUnit(Unit* pVictim)
     {
         if (pVictim->GetTypeId() != TYPEID_PLAYER) return;
-    }
-
-    bool QuerySpellPeriod(uint32 m_uiSpellIdx, uint32 diff)
-    {
-    if(!m_pInstance) return false;
-    bool result;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        if (m_uiSpellIdx != pSpell->id) return false;
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] == 0 ) m_uiSpell_Timer[m_uiSpellIdx]=urand(0,pSpell->m_uiSpellTimerMax[Difficulty]);
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] < diff) {
-            m_uiSpell_Timer[m_uiSpellIdx]=urand(pSpell->m_uiSpellTimerMin[Difficulty],pSpell->m_uiSpellTimerMax[Difficulty]);
-            result = true;
-            } else {
-            m_uiSpell_Timer[m_uiSpellIdx] -= diff;
-            result = false;
-            };
-        return result;
-    }
-
-    CanCastResult CastBossSpell(uint32 m_uiSpellIdx)
-    {
-    if(!m_pInstance) return CAST_FAIL_OTHER;
-    Unit* pTarget;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        // Find spell index - temporary direct insert from spelltable
-        if (m_uiSpellIdx != pSpell->id) return CAST_FAIL_OTHER;
-
-        switch (pSpell->m_CastTarget) {
-            case CAST_ON_SELF:
-                   pTarget = m_creature;
-                   break;
-            case CAST_ON_SUMMONS:
-                   pTarget = m_creature->getVictim(); //CHANGE IT!!!
-                   break;
-            case CAST_ON_VICTIM:
-                   pTarget = m_creature->getVictim();
-                   break;
-            case CAST_ON_RANDOM:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                   break;
-            case CAST_ON_BOTTOMAGGRO:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                   break;
-
-            };
-            currentTarget = pTarget;
-            if (pTarget) return DoCastSpellIfCan(pTarget,pSpell->m_uiSpellEntry[Difficulty]);
     }
 
     void JustDied(Unit* Killer)
@@ -593,61 +502,15 @@ struct MANGOS_DLL_DECL mob_mistress_of_painAI : public ScriptedAI
     uint32 m_uiSpell_Timer[BOSS_SPELL_COUNT];
     Unit* currentTarget;
 
+#include "sc_boss_spell_worker.cpp"
+
     void Reset()
     {
-        memset(&m_uiSpell_Timer, 0, sizeof(m_uiSpell_Timer));
+        for (uint8 i = 0; i < BOSS_SPELL_COUNT; ++i)
+              m_uiSpell_Timer[i] = urand(m_BossSpell[i].m_uiSpellTimerMin[Difficulty],m_BossSpell[i].m_uiSpellTimerMax[Difficulty]);
         Difficulty = m_pInstance->GetData(TYPE_DIFFICULTY);
         m_creature->SetInCombatWithZone();
         m_creature->SetRespawnDelay(DAY);
-    }
-
-    bool QuerySpellPeriod(uint32 m_uiSpellIdx, uint32 diff)
-    {
-    if(!m_pInstance) return false;
-    bool result;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        if (m_uiSpellIdx != pSpell->id) return false;
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] == 0 ) m_uiSpell_Timer[m_uiSpellIdx]=urand(0,pSpell->m_uiSpellTimerMax[Difficulty]);
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] < diff) {
-            m_uiSpell_Timer[m_uiSpellIdx]=urand(pSpell->m_uiSpellTimerMin[Difficulty],pSpell->m_uiSpellTimerMax[Difficulty]);
-            result = true;
-            } else {
-            m_uiSpell_Timer[m_uiSpellIdx] -= diff;
-            result = false;
-            };
-        return result;
-    }
-
-    CanCastResult CastBossSpell(uint32 m_uiSpellIdx)
-    {
-    if(!m_pInstance) return CAST_FAIL_OTHER;
-    Unit* pTarget;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        // Find spell index - temporary direct insert from spelltable
-        if (m_uiSpellIdx != pSpell->id) return CAST_FAIL_OTHER;
-
-        switch (pSpell->m_CastTarget) {
-            case CAST_ON_SELF:
-                   pTarget = m_creature;
-                   break;
-            case CAST_ON_SUMMONS:
-                   pTarget = m_creature->getVictim(); //CHANGE IT!!!
-                   break;
-            case CAST_ON_VICTIM:
-                   pTarget = m_creature->getVictim();
-                   break;
-            case CAST_ON_RANDOM:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                   break;
-            case CAST_ON_BOTTOMAGGRO:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                   break;
-
-            };
-            currentTarget = pTarget;
-            if (pTarget) return DoCastSpellIfCan(pTarget,pSpell->m_uiSpellEntry[Difficulty]);
     }
 
     void KilledUnit(Unit* pVictim)

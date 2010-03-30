@@ -21,6 +21,11 @@ SDComment: by /dev/rsa
 SDCategory: Crusader Coliseum
 EndScriptData */
 
+// Twin pact && shields not implemented
+// Shared health not fully correct worked
+// timers need correct
+// Portals not moving
+
 #include "precompiled.h"
 #include "trial_of_the_crusader.h"
 
@@ -101,63 +106,16 @@ struct MANGOS_DLL_DECL boss_fjolaAI : public ScriptedAI
     uint8 stage;
     Unit* currentTarget;
 
+#include "sc_boss_spell_worker.cpp"
+
     void Reset() {
         if(!m_pInstance) return;
         Difficulty = m_pInstance->GetData(TYPE_DIFFICULTY);
-        m_pInstance->SetData(TYPE_VALKIRIES, NOT_STARTED);
-        memset(&m_uiSpell_Timer, 0, sizeof(m_uiSpell_Timer));
+        for (uint8 i = 0; i < BOSS_SPELL_COUNT; ++i)
+              m_uiSpell_Timer[i] = urand(m_BossSpell[i].m_uiSpellTimerMin[Difficulty],m_BossSpell[i].m_uiSpellTimerMax[Difficulty]);
         SetEquipmentSlots(false, EQUIP_MAIN_1, EQUIP_OFFHAND_1, EQUIP_RANGED_1);
         if (m_creature->isAlive()) m_creature->SummonCreature(NPC_LIGHT_ESSENCE, SpawnLoc[24].x, SpawnLoc[24].y, SpawnLoc[24].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
         if (m_creature->isAlive()) m_creature->SummonCreature(NPC_LIGHT_ESSENCE, SpawnLoc[25].x, SpawnLoc[25].y, SpawnLoc[25].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
-    }
-
-    bool QuerySpellPeriod(uint32 m_uiSpellIdx, uint32 diff)
-    {
-    if(!m_pInstance) return false;
-    bool result;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        if (m_uiSpellIdx != pSpell->id) return false;
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] == 0 ) m_uiSpell_Timer[m_uiSpellIdx]=urand(0,pSpell->m_uiSpellTimerMax[Difficulty]);
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] < diff) {
-            m_uiSpell_Timer[m_uiSpellIdx]=urand(pSpell->m_uiSpellTimerMin[Difficulty],pSpell->m_uiSpellTimerMax[Difficulty]);
-            result = true;
-            } else {
-            m_uiSpell_Timer[m_uiSpellIdx] -= diff;
-            result = false;
-            };
-        return result;
-    }
-
-    CanCastResult CastBossSpell(uint32 m_uiSpellIdx)
-    {
-    if(!m_pInstance) return CAST_FAIL_OTHER;
-    Unit* pTarget;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        // Find spell index - temporary direct insert from spelltable
-        if (m_uiSpellIdx != pSpell->id) return CAST_FAIL_OTHER;
-
-        switch (pSpell->m_CastTarget) {
-            case CAST_ON_SELF:
-                   pTarget = m_creature;
-                   break;
-            case CAST_ON_SUMMONS:
-                   pTarget = m_creature->getVictim(); //CHANGE IT!!!
-                   break;
-            case CAST_ON_VICTIM:
-                   pTarget = m_creature->getVictim();
-                   break;
-            case CAST_ON_RANDOM:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                   break;
-            case CAST_ON_BOTTOMAGGRO:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                   break;
-
-            };
-            currentTarget = pTarget;
-            if (pTarget) return DoCastSpellIfCan(pTarget,pSpell->m_uiSpellEntry[Difficulty]);
     }
 
     void JustReachedHome()
@@ -237,64 +195,17 @@ struct MANGOS_DLL_DECL boss_eydisAI : public ScriptedAI
     uint8 stage;
     Unit* currentTarget;
 
+#include "sc_boss_spell_worker.cpp"
+
     void Reset() 
     {
         if(!m_pInstance) return;
         Difficulty = m_pInstance->GetData(TYPE_DIFFICULTY);
-        m_pInstance->SetData(TYPE_VALKIRIES, NOT_STARTED);
-        memset(&m_uiSpell_Timer, 0, sizeof(m_uiSpell_Timer));
+        for (uint8 i = 0; i < BOSS_SPELL_COUNT; ++i)
+              m_uiSpell_Timer[i] = urand(m_BossSpell[i].m_uiSpellTimerMin[Difficulty],m_BossSpell[i].m_uiSpellTimerMax[Difficulty]);
         SetEquipmentSlots(false, EQUIP_MAIN_2, EQUIP_OFFHAND_2, EQUIP_RANGED_2);
         if (m_creature->isAlive()) m_creature->SummonCreature(NPC_DARK_ESSENCE, SpawnLoc[22].x, SpawnLoc[22].y, SpawnLoc[22].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
         if (m_creature->isAlive()) m_creature->SummonCreature(NPC_DARK_ESSENCE, SpawnLoc[23].x, SpawnLoc[23].y, SpawnLoc[23].z, 0, TEMPSUMMON_MANUAL_DESPAWN, 5000);
-    }
-
-    bool QuerySpellPeriod(uint32 m_uiSpellIdx, uint32 diff)
-    {
-    if(!m_pInstance) return false;
-    bool result;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        if (m_uiSpellIdx != pSpell->id) return false;
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] == 0 ) m_uiSpell_Timer[m_uiSpellIdx]=urand(0,pSpell->m_uiSpellTimerMax[Difficulty]);
-
-        if (m_uiSpell_Timer[m_uiSpellIdx] < diff) {
-            m_uiSpell_Timer[m_uiSpellIdx]=urand(pSpell->m_uiSpellTimerMin[Difficulty],pSpell->m_uiSpellTimerMax[Difficulty]);
-            result = true;
-            } else {
-            m_uiSpell_Timer[m_uiSpellIdx] -= diff;
-            result = false;
-            };
-        return result;
-    }
-
-    CanCastResult CastBossSpell(uint32 m_uiSpellIdx)
-    {
-    if(!m_pInstance) return CAST_FAIL_OTHER;
-    Unit* pTarget;
-    SpellTable* pSpell = &m_BossSpell[m_uiSpellIdx];
-        // Find spell index - temporary direct insert from spelltable
-        if (m_uiSpellIdx != pSpell->id) return CAST_FAIL_OTHER;
-
-        switch (pSpell->m_CastTarget) {
-            case CAST_ON_SELF:
-                   pTarget = m_creature;
-                   break;
-            case CAST_ON_SUMMONS:
-                   pTarget = m_creature->getVictim(); //CHANGE IT!!!
-                   break;
-            case CAST_ON_VICTIM:
-                   pTarget = m_creature->getVictim();
-                   break;
-            case CAST_ON_RANDOM:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0);
-                   break;
-            case CAST_ON_BOTTOMAGGRO:
-                   pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
-                   break;
-
-            };
-            currentTarget = pTarget;
-            if (pTarget) return DoCastSpellIfCan(pTarget,pSpell->m_uiSpellEntry[Difficulty]);
     }
 
     void JustReachedHome()
