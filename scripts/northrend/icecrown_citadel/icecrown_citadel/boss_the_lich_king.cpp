@@ -201,6 +201,8 @@ bool GossipSelect_boss_tirion_icc(Player* pPlayer, Creature* pCreature, uint32 u
     {
         pPlayer->CLOSE_GOSSIP_MENU();
     }
+
+return true;
 };
 
 CreatureAI* GetAI_boss_tirion_icc(Creature* pCreature)

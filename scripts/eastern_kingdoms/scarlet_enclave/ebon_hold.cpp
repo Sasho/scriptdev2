@@ -3075,13 +3075,13 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
     {
         if (Creature* pTemp = ((Creature*)Unit::GetUnit((*m_creature), ui_GUID)))
             if (pTemp->isAlive())
-                if (Unit* pTarger = SelectUnit(SELECT_TARGET_RANDOM,0))
-                    if (pTarger->isAlive())
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0)) 
+                    if (pTarget->isAlive())
                     {
-                        ((Creature*)pTemp)->AddThreat(pTarger, 0.0f);
-                        ((Creature*)pTemp)->AI()->AttackStart(pTarger);
-                        ((Creature*)pTemp)->SetInCombatWith(pTarger);
-                        pTarger->SetInCombatWith(pTemp);
+                        ((Creature*)pTemp)->AddThreat(pTarget, 0.0f);
+                        ((Creature*)pTemp)->AI()->AttackStart(pTarget);
+                        ((Creature*)pTemp)->SetInCombatWith(pTarget);
+                        pTarget->SetInCombatWith(pTemp);
                     }
     }
 
