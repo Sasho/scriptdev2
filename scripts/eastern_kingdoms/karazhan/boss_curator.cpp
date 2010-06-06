@@ -60,7 +60,7 @@ struct MANGOS_DLL_DECL boss_curatorAI : public ScriptedAI
     {
         m_uiFlareTimer = 10000;
         m_uiHatefulBoltTimer = 15000;                       // This time may be wrong
-        m_uiBerserkTimer = 12*MINUTE*IN_MILISECONDS;
+        m_uiBerserkTimer = 12*MINUTE*IN_MILLISECONDS;
         m_bIsBerserk = false;
         m_bIsEnraged = false;
 
@@ -92,7 +92,7 @@ struct MANGOS_DLL_DECL boss_curatorAI : public ScriptedAI
 
             if (m_creature->getVictim())
             {
-                Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 1);
+                Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1);
 
                 pSummoned->AddThreat(pTarget ? pTarget : m_creature->getVictim(), 1000.0f);
             }
@@ -184,7 +184,7 @@ struct MANGOS_DLL_DECL boss_curatorAI : public ScriptedAI
 
         if (m_uiHatefulBoltTimer < uiDiff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_TOPAGGRO, 1))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_TOPAGGRO, 1))
                 m_creature->CastSpell(pTarget, SPELL_HATEFUL_BOLT, false);
 
             m_uiHatefulBoltTimer = m_bIsEnraged ? 7000 : 15000;

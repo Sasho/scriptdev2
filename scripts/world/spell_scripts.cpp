@@ -25,7 +25,9 @@ EndScriptData */
 spell 34665
 spell 19512
 spell 8913
+spell 21014
 spell 29528
+spell 29866
 spell 46770
 spell 46023
 spell 47575
@@ -38,6 +40,77 @@ EndContentData */
 - always check spell id and effect index
 - always return true when the spell is handled by script
 */
+
+enum
+{
+    // quest 9452
+    SPELL_CAST_FISHING_NET      = 29866,
+    GO_RED_SNAPPER              = 181616,
+    NPC_ANGRY_MURLOC            = 17102,
+    ITEM_RED_SNAPPER            = 23614,
+    //SPELL_SUMMON_TEST           = 49214                   // ! Just wrong spell name? It summon correct creature (17102)but does not appear to be used.
+
+    // quest 11472
+    SPELL_ANUNIAQS_NET          = 21014,
+    GO_TASTY_REEF_FISH          = 186949,
+    NPC_REEF_SHARK              = 24637,
+    ITEM_TASTY_REEF_FISH        = 34127,
+};
+
+bool EffectDummyGameObj_spell_dummy_go(Unit* pCaster, uint32 uiSpellId, SpellEffectIndex uiEffIndex, GameObject* pGOTarget)
+{
+    switch(uiSpellId)
+    {
+        case SPELL_ANUNIAQS_NET:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0)
+            {
+                if (pGOTarget->GetEntry() != GO_TASTY_REEF_FISH || pCaster->GetTypeId() != TYPEID_PLAYER)
+                    return true;
+
+                if (urand(0, 3))
+                {
+                    if (Item* pItem = ((Player*)pCaster)->StoreNewItemInInventorySlot(ITEM_TASTY_REEF_FISH, 1))
+                        ((Player*)pCaster)->SendNewItem(pItem, 1, true, false);
+                }
+                else
+                {
+                    if (Creature* pShark = pCaster->SummonCreature(NPC_REEF_SHARK, pGOTarget->GetPositionX(), pGOTarget->GetPositionY(), pGOTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                        pShark->AI()->AttackStart(pCaster);
+                }
+
+                pGOTarget->Delete();                        // sends despawn anim + destroy
+                return true;
+            }
+            return true;
+        }
+        case SPELL_CAST_FISHING_NET:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0)
+            {
+                if (pGOTarget->GetEntry() != GO_RED_SNAPPER || pCaster->GetTypeId() != TYPEID_PLAYER)
+                    return true;
+
+                if (urand(0, 2))
+                {
+                    if (Creature* pMurloc = pCaster->SummonCreature(NPC_ANGRY_MURLOC, pCaster->GetPositionX(), pCaster->GetPositionY()+20.0f, pCaster->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 10000))
+                        pMurloc->AI()->AttackStart(pCaster);
+                }
+                else
+                {
+                    if (Item* pItem = ((Player*)pCaster)->StoreNewItemInInventorySlot(ITEM_RED_SNAPPER, 1))
+                        ((Player*)pCaster)->SendNewItem(pItem, 1, true, false);
+                }
+
+                pGOTarget->Delete();                        // sends despawn anim + destroy
+                return true;
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
 
 enum
 {
@@ -154,7 +227,11 @@ enum
     FACTION_HOSTILE                     = 16,
 
     EMOTE_AGGRO                         = -1000551,
-    EMOTE_CREATE                        = -1000552
+    EMOTE_CREATE                        = -1000552,
+
+    SAY_SPECIMEN                        = -1000581,
+    NPC_NEXUS_DRAKE_HATCHLING           = 26127,
+    SPELL_RAELORASZ_FIREBALL            = 46704
 };
 
 bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
@@ -188,7 +265,7 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
                 if (pCreature->getStandState() == UNIT_STAND_STATE_KNEEL)
                     pCreature->SetStandState(UNIT_STAND_STATE_STAND);
 
-                pCreature->ForcedDespawn(60*IN_MILISECONDS);
+                pCreature->ForcedDespawn(60*IN_MILLISECONDS);
             }
 
             return true;
@@ -227,6 +304,27 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
                     pCreature->ForcedDespawn();
             }
 
+            return true;
+        }
+        case SPELL_RAELORASZ_FIREBALL:
+        {
+            if (pAura->GetEffIndex() != EFFECT_INDEX_0)
+                return true;
+            
+            if (Unit* pCaster = pAura->GetCaster())
+                DoScriptText(SAY_SPECIMEN, pCaster);
+
+            Unit* pTarget = pAura->GetTarget();
+            if (pTarget->GetTypeId() == TYPEID_UNIT)
+            {
+                Creature* pCreature = (Creature*)pTarget;
+
+                if (pCreature->GetEntry() == NPC_NEXUS_DRAKE_HATCHLING)
+                {
+                    pCreature->SetStandState(UNIT_STAND_STATE_SLEEP);
+                    pCreature->ForcedDespawn(3000);
+                }
+            }
             return true;
         }
     }
@@ -498,7 +596,12 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
 
 void AddSC_spell_scripts()
 {
-    Script *newscript;
+    Script* newscript;
+
+    newscript = new Script;
+    newscript->Name = "spell_dummy_go";
+    newscript->pEffectDummyGameObj = &EffectDummyGameObj_spell_dummy_go;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "spell_dummy_npc";

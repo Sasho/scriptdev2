@@ -92,7 +92,7 @@ void SummonCroneIfReady(ScriptedInstance* pInstance, Creature* pCreature)
 
     if (pInstance->GetData(DATA_OPERA_OZ_DEATHCOUNT) == 4)
     {
-        if (Creature* pCrone = pCreature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, pCreature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
+        if (Creature* pCrone = pCreature->SummonCreature(CREATURE_CRONE, -10891.96f, -1755.95f, pCreature->GetPositionZ(), 4.64f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
         {
             if (pCreature->getVictim())
                 pCrone->AI()->AttackStart(pCreature->getVictim());
@@ -183,7 +183,7 @@ struct MANGOS_DLL_DECL boss_dorotheeAI : public ScriptedAI
 
         if (WaterBoltTimer < diff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_WATERBOLT);
 
             WaterBoltTimer = TitoDied ? 1500 : 5000;
@@ -359,7 +359,7 @@ struct MANGOS_DLL_DECL boss_strawmanAI : public ScriptedAI
 
         if (BrainWipeTimer < diff)
         {
-            if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, SPELL_BRAIN_WIPE);
 
             BrainWipeTimer = 20000;
@@ -734,7 +734,7 @@ bool GossipSelect_npc_grandmother(Player* pPlayer, Creature* pCreature, uint32 u
 {
     if (uiAction == GOSSIP_ACTION_INFO_DEF)
     {
-        if (Creature* pBigBadWolf = pCreature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
+        if (Creature* pBigBadWolf = pCreature->SummonCreature(CREATURE_BIG_BAD_WOLF, 0.0f, 0.0f, 0.0f, 0.0f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
             pBigBadWolf->AI()->AttackStart(pPlayer);
 
         pCreature->ForcedDespawn();
@@ -803,7 +803,7 @@ struct MANGOS_DLL_DECL boss_bigbadwolfAI : public ScriptedAI
         {
             if (!IsChasing)
             {
-                Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 0);
+                Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
                 if (target && target->GetTypeId() == TYPEID_PLAYER)
                 {
                     DoScriptText(SAY_WOLF_HOOD, m_creature);
@@ -1275,7 +1275,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
     {
         if (SummonRomuloTimer < diff)
         {
-            if (Creature* pRomulo = m_creature->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILISECONDS))
+            if (Creature* pRomulo = m_creature->SummonCreature(CREATURE_ROMULO, ROMULO_X, ROMULO_Y, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, HOUR*2*IN_MILLISECONDS))
             {
                 RomuloGUID = pRomulo->GetGUID();
                 ((boss_romuloAI*)pRomulo->AI())->JulianneGUID = m_creature->GetGUID();
@@ -1326,7 +1326,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
 
     if (BlindingPassionTimer < diff)
     {
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             DoCastSpellIfCan(pTarget, SPELL_BLINDING_PASSION);
 
         BlindingPassionTimer = urand(30000, 45000);
@@ -1340,7 +1340,7 @@ void boss_julianneAI::UpdateAI(const uint32 diff)
 
     if (PowerfulAttractionTimer < diff)
     {
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             DoCastSpellIfCan(pTarget, SPELL_POWERFUL_ATTRACTION);
 
         PowerfulAttractionTimer = urand(5000, 30000);
@@ -1384,7 +1384,7 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
 
     if (BackwardLungeTimer < diff)
     {
-        Unit* target = SelectUnit(SELECT_TARGET_RANDOM, 1);
+        Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1);
         if (target && !m_creature->HasInArc(M_PI_F, target))
         {
             DoCastSpellIfCan(target, SPELL_BACKWARD_LUNGE);
@@ -1400,7 +1400,7 @@ void boss_romuloAI::UpdateAI(const uint32 diff)
 
     if (DeadlySwatheTimer < diff)
     {
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             DoCastSpellIfCan(pTarget, SPELL_DEADLY_SWATHE);
 
         DeadlySwatheTimer = urand(15000, 25000);

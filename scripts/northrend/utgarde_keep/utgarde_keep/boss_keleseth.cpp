@@ -106,7 +106,7 @@ struct MANGOS_DLL_DECL mob_vrykul_skeletonAI : public ScriptedAI
         m_creature->RemoveFlag(UNIT_DYNAMIC_FLAGS, UNIT_DYNFLAG_DEAD);
         m_creature->SetStandState(UNIT_STAND_STATE_STAND);
 
-        if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+        if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             m_creature->GetMotionMaster()->MoveChase(pTarget);
 
         DoResetThreat();
@@ -232,7 +232,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
     void SummonAdds()
     {
         for (uint8 i=0; i<4; ++i)
-            m_creature->SummonCreature(NPC_VRYKUL_SKELETON, fAddPosition[0]+rand()%7, fAddPosition[1]+rand()%7, fAddPosition[2], fAddPosition[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, MINUTE*IN_MILISECONDS);
+            m_creature->SummonCreature(NPC_VRYKUL_SKELETON, fAddPosition[0]+rand()%7, fAddPosition[1]+rand()%7, fAddPosition[2], fAddPosition[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, MINUTE*IN_MILLISECONDS);
     }
 
     void DespawnAdds()
@@ -290,7 +290,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
 
         if (m_uiFrostTombTimer < uiDiff)
         {
-            if (Unit* pTombTarget = SelectUnit(SELECT_TARGET_RANDOM, 0))
+            if (Unit* pTombTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
                 //DoCastSpellIfCan(pTombTarget, SPELL_SUMMON_FROST_TOMB);
                 float fPosX, fPosY, fPosZ;

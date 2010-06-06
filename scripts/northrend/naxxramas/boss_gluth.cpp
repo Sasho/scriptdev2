@@ -142,7 +142,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         m_uiEnrageTimer = 60000;
         Summon_Timer = 10000;
 
-        m_uiBerserkTimer = MINUTE*8*IN_MILISECONDS;
+        m_uiBerserkTimer = MINUTE*8*IN_MILLISECONDS;
 
         RangeCheck_Timer = 1000;
         m_lZombieGUIDList.clear();
@@ -261,9 +261,9 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
             {
                 if (Creature* pZombie = m_creature->SummonCreature(NPC_ZOMBIE_CHOW,ADD_1X,ADD_1Y,ADD_1Z,0,TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,80000))
                 {
-                    if (Unit* pTarget = SelectUnit(SELECT_TARGET_RANDOM,0))
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     {
-                        pZombie->AI()->AttackStart(pTarget);
+                        pZombie->AddThreat(pTarget);
                         m_lZombieGUIDList.push_back(pZombie->GetGUID());
                     }
                 }
@@ -274,8 +274,8 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         // Berserk
         if (m_uiBerserkTimer < uiDiff)
         {
-            DoCast(m_creature, SPELL_BERSERK, true);
-            m_uiBerserkTimer = MINUTE*5*IN_MILISECONDS;
+            DoCastSpellIfCan(m_creature, SPELL_BERSERK, CAST_TRIGGERED);
+            m_uiBerserkTimer = MINUTE*5*IN_MILLISECONDS;
         }
         else
             m_uiBerserkTimer -= uiDiff;

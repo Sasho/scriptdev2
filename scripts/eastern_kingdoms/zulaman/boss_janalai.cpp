@@ -200,9 +200,9 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
         m_bCanBlowUpBombs = false;
         m_bIsEggRemaining = true;
 
-        enrage_timer = MINUTE*5*IN_MILISECONDS;
+        enrage_timer = MINUTE*5*IN_MILLISECONDS;
         hatchertime = 10000;
-        wipetimer = MINUTE*10*IN_MILISECONDS;
+        wipetimer = MINUTE*10*IN_MILLISECONDS;
         enraged = false;
         enragetime = false;
     }
@@ -308,7 +308,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
 
             //workaround part
             //m_creature->GetRandomPoint(m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), fRadius+(fRadius*i), fX, fY, fZ);
-            //m_creature->SummonCreature(NPC_FIRE_BOMB, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, MINUTE*IN_MILISECONDS);
+            //m_creature->SummonCreature(NPC_FIRE_BOMB, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN, MINUTE*IN_MILLISECONDS);
         }
 
         ++m_uiBombCounter;
@@ -428,7 +428,7 @@ struct MANGOS_DLL_DECL boss_janalaiAI : public ScriptedAI
             //FIRE BREATH  several videos says every 8Secounds
             if (fire_breath_timer < diff)
             {
-                if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+                if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                     DoCastSpellIfCan(target,SPELL_FLAME_BREATH);
                 fire_breath_timer = 8000;
             }else fire_breath_timer -=diff;
@@ -743,7 +743,7 @@ struct MANGOS_DLL_DECL mob_hatchlingAI : public ScriptedAI
 
         if (buffer_timer < diff)
         {
-            if (Unit* target = SelectUnit(SELECT_TARGET_RANDOM,0))
+            if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 DoCastSpellIfCan(target,SPELL_FLAMEBUFFED);
 
             buffer_timer = 7000;

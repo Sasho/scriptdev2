@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Areatrigger_Scripts
 SD%Complete: 100
-SDComment: Quest support: 6681, 11686, 10589/10604, 13315/13351
+SDComment: Quest support: 6681, 11686, 10589/10604, 12741, 13315/13351
 SDCategory: Areatrigger
 EndScriptData */
 
@@ -26,12 +26,36 @@ at_aldurthar_gate               5284,5285,5286,5287
 at_coilfang_waterfall           4591
 at_legion_teleporter            4560 Teleporter TO Invasion Point: Cataclysm
 at_ravenholdt
-at_warsong_slaughterhouse
-at_warsong_grainery
-at_torp_farm
+at_warsong_farms
+at_stormwright_shelf            5108
+at_childrens_week_spot          3546,3547,3548,3552,3549,3550
 EndContentData */
 
 #include "precompiled.h"
+                                                                    
+uint32 TriggerOrphanSpell[6][3] =
+{
+    {3546, 14305, 65056},   // The Bough of the Eternals
+    {3547, 14444, 65059},   // Lordaeron Throne Room
+    {3548, 14305, 65055},   // The Stonewrought Dam
+    {3549, 14444, 65058},   // Gateway to the Frontier
+    {3550, 14444, 65057},   // Down at the Docks
+    {3552, 14305, 65054}    // Spooky Lighthouse
+};
+
+bool AreaTrigger_at_childrens_week_spot(Player* pPlayer, AreaTriggerEntry* pAt)
+{
+    for (uint8 i = 0; i < 6; ++i)
+    {
+        if (pAt->id == TriggerOrphanSpell[i][0] &&
+            pPlayer->GetMiniPet() && pPlayer->GetMiniPet()->GetEntry() == TriggerOrphanSpell[i][1])
+        {
+            pPlayer->CastSpell(pPlayer, TriggerOrphanSpell[i][2], true);
+            return true;
+        }
+    }
+    return false;
+}
 
 /*######
 ## Quest 13315/13351
@@ -50,16 +74,15 @@ enum
     NPC_NORTHWEST_GATE          = 32199
 };
 
-bool AreaTrigger_at_aldurthar_gate(Player* pPlayer, AreaTriggerEntry *pAt)
+bool AreaTrigger_at_aldurthar_gate(Player* pPlayer, AreaTriggerEntry* pAt)
 {
     switch(pAt->id)
     {
-        case TRIGGER_SOUTH: pPlayer->KilledMonsterCredit(NPC_SOUTH_GATE, 0); break;
-        case TRIGGER_CENTRAL: pPlayer->KilledMonsterCredit(NPC_CENTRAL_GATE, 0); break;
-        case TRIGGER_NORTH: pPlayer->KilledMonsterCredit(NPC_NORTH_GATE, 0); break;
+        case TRIGGER_SOUTH:     pPlayer->KilledMonsterCredit(NPC_SOUTH_GATE, 0);     break;
+        case TRIGGER_CENTRAL:   pPlayer->KilledMonsterCredit(NPC_CENTRAL_GATE, 0);   break;
+        case TRIGGER_NORTH:     pPlayer->KilledMonsterCredit(NPC_NORTH_GATE, 0);     break;
         case TRIGGER_NORTHWEST: pPlayer->KilledMonsterCredit(NPC_NORTHWEST_GATE, 0); break;
     }
-
     return true;
 }
 
@@ -79,7 +102,6 @@ bool AreaTrigger_at_coilfang_waterfall(Player* pPlayer, AreaTriggerEntry* pAt)
         if (pGo->getLootState() == GO_READY)
             pGo->UseDoorOrButton();
     }
-
     return false;
 }
 
@@ -100,18 +122,17 @@ bool AreaTrigger_at_legion_teleporter(Player* pPlayer, AreaTriggerEntry* pAt)
 {
     if (pPlayer->isAlive() && !pPlayer->isInCombat())
     {
-        if (pPlayer->GetTeam()== ALLIANCE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_A))
+        if (pPlayer->GetTeam() == ALLIANCE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_A))
         {
-            pPlayer->CastSpell(pPlayer,SPELL_TELE_A_TO,false);
+            pPlayer->CastSpell(pPlayer, SPELL_TELE_A_TO, false);
             return true;
         }
 
-        if (pPlayer->GetTeam()== HORDE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_H))
+        if (pPlayer->GetTeam() == HORDE && pPlayer->GetQuestRewardStatus(QUEST_GAINING_ACCESS_H))
         {
-            pPlayer->CastSpell(pPlayer,SPELL_TELE_H_TO,false);
+            pPlayer->CastSpell(pPlayer, SPELL_TELE_H_TO, false);
             return true;
         }
-
         return false;
     }
     return false;
@@ -136,7 +157,7 @@ bool AreaTrigger_at_ravenholdt(Player* pPlayer, AreaTriggerEntry* pAt)
 }
 
 /*######
-## Quest 11686
+## at_warsong_farms
 ######*/
 
 enum
@@ -144,29 +165,41 @@ enum
     QUEST_THE_WARSONG_FARMS     = 11686,
     NPC_CREDIT_SLAUGHTERHOUSE   = 25672,
     NPC_CREDIT_GRAINERY         = 25669,
-    NPC_CREDIT_TORP_FARM        = 25671
+    NPC_CREDIT_TORP_FARM        = 25671,
+
+    AT_SLAUGHTERHOUSE           = 4873,
+    AT_GRAINERY                 = 4871,
+    AT_TORP_FARM                = 4872
 };
- 
-bool AreaTrigger_at_warsong_slaughterhouse(Player* pPlayer, AreaTriggerEntry *pAt)
+
+bool AreaTrigger_at_warsong_farms(Player* pPlayer, AreaTriggerEntry* pAt)
 {
     if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_THE_WARSONG_FARMS) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->KilledMonsterCredit(NPC_CREDIT_SLAUGHTERHOUSE, 0);
-
+    {
+        switch(pAt->id)
+        {
+            case AT_SLAUGHTERHOUSE: pPlayer->KilledMonsterCredit(NPC_CREDIT_SLAUGHTERHOUSE, 0); break;
+            case AT_GRAINERY:       pPlayer->KilledMonsterCredit(NPC_CREDIT_GRAINERY, 0);       break;
+            case AT_TORP_FARM:      pPlayer->KilledMonsterCredit(NPC_CREDIT_TORP_FARM, 0);      break;
+        }
+    }
     return true;
-}
+ }
 
-bool AreaTrigger_at_warsong_grainery(Player* pPlayer, AreaTriggerEntry *pAt)
+/*######
+## Quest 12741
+######*/
+
+enum
 {
-    if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_THE_WARSONG_FARMS) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->KilledMonsterCredit(NPC_CREDIT_GRAINERY, 0);
+    QUEST_STRENGTH_OF_THE_TEMPEST            = 12741,
+    SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST   = 53067
+};
 
-    return true;
-}
-
-bool AreaTrigger_at_torp_farm(Player* pPlayer, AreaTriggerEntry *pAt)
+bool AreaTrigger_at_stormwright_shelf(Player* pPlayer, AreaTriggerEntry* pAt)
 {
-    if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_THE_WARSONG_FARMS) == QUEST_STATUS_INCOMPLETE)
-        pPlayer->KilledMonsterCredit(NPC_CREDIT_TORP_FARM, 0);
+    if (!pPlayer->isDead() && pPlayer->GetQuestStatus(QUEST_STRENGTH_OF_THE_TEMPEST) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->CastSpell(pPlayer, SPELL_CREATE_TRUE_POWER_OF_THE_TEMPEST, false);
 
     return true;
 }
@@ -174,6 +207,11 @@ bool AreaTrigger_at_torp_farm(Player* pPlayer, AreaTriggerEntry *pAt)
 void AddSC_areatrigger_scripts()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "at_childrens_week_spot";
+    newscript->pAreaTrigger = &AreaTrigger_at_childrens_week_spot;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "at_aldurthar_gate";
@@ -196,17 +234,12 @@ void AddSC_areatrigger_scripts()
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "at_warsong_slaughterhouse";
-    newscript->pAreaTrigger = &AreaTrigger_at_warsong_slaughterhouse;
+    newscript->Name = "at_warsong_farms";
+    newscript->pAreaTrigger = &AreaTrigger_at_warsong_farms;
     newscript->RegisterSelf();
 
     newscript = new Script;
-    newscript->Name = "at_warsong_grainery";
-    newscript->pAreaTrigger = &AreaTrigger_at_warsong_grainery;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "at_torp_farm";
-    newscript->pAreaTrigger = &AreaTrigger_at_torp_farm;
+    newscript->Name = "at_stormwright_shelf";
+    newscript->pAreaTrigger = &AreaTrigger_at_stormwright_shelf;
     newscript->RegisterSelf();
 }
